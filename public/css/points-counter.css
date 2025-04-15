@@ -1,0 +1,30 @@
+/* Points Counter Styles */
+.points-counter {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background: rgba(138, 43, 226, 0.8);
+    /* blueviolet with transparency */
+    color: white;
+    padding: 10px 15px;
+    border-radius: 5px;
+    font-family: "Poppins", sans-serif;
+    font-weight: 600;
+    z-index: 999;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+}
+
+.progress-container {
+    width: 100%;
+    background: #e0e0e0;
+    border-radius: 5px;
+    margin-top: 5px;
+}
+
+.progress-bar {
+    height: 5px;
+    background: #3498db;
+    border-radius: 5px;
+    width: 0%;
+    transition: width 0.3s ease;
+}
