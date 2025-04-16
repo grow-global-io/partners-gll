@@ -48,31 +48,31 @@ const Facts: React.FC = () => {
     };
 
     return (
-        <section id="facts">
+        <section id="facts" className="py-5">
             <div className="container wow fadeIn">
-                <div className="section-header">
-                    <h3 className="section-title">Our Network</h3>
-                    <p className="section-description">People and Emotions that are attached with us..</p>
+                <div className="section-header text-center mb-5">
+                    <h3 className="section-title fs-2 mb-3">Our Network</h3>
+                    <p className="section-description px-3 mx-auto" style={{ maxWidth: '800px' }}>People and Emotions that are attached with us..</p>
                 </div>
-                <div className="row counters">
-                    <div className="col-lg-3 col-6 text-center">
-                        <span data-toggle="counter-up">877</span>
-                        <p>Seller Community</p>
+                <div className="row counters g-4">
+                    <div className="col-6 col-md-3 text-center">
+                        <span data-toggle="counter-up" className="fs-1 fw-bold d-block mb-2">877</span>
+                        <p className="mb-0">Seller Community</p>
                     </div>
 
-                    <div className="col-lg-3 col-6 text-center">
-                        <span>24x7</span>
-                        <p>Online Businesses</p>
+                    <div className="col-6 col-md-3 text-center">
+                        <span className="fs-1 fw-bold d-block mb-2">24x7</span>
+                        <p className="mb-0">Online Businesses</p>
                     </div>
 
-                    <div className="col-lg-3 col-6 text-center">
-                        <span data-toggle="counter-up">17883</span>
-                        <p>Orders Delivered</p>
+                    <div className="col-6 col-md-3 text-center">
+                        <span data-toggle="counter-up" className="fs-1 fw-bold d-block mb-2">17883</span>
+                        <p className="mb-0">Orders Delivered</p>
                     </div>
 
-                    <div className="col-lg-3 col-6 text-center">
-                        <span data-toggle="counter-up">349</span>
-                        <p>Categories in Consumer Product</p>
+                    <div className="col-6 col-md-3 text-center">
+                        <span data-toggle="counter-up" className="fs-1 fw-bold d-block mb-2">349</span>
+                        <p className="mb-0">Categories in Consumer Product</p>
                     </div>
                 </div>
             </div>

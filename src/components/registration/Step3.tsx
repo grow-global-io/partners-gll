@@ -1,16 +1,14 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RegistrationProgress from './RegistrationProgress';
 
 interface Step3Props {
     formData: {
-        businessType: string;
-        monthlyTurnover: string;
-        bankName: string;
-        accountNumber: string;
         ifscCode: string;
-        bankBranch: string;
+        accountHolderName: string;
+        accountNumber: string;
+        paymentGateway: string;
     };
     onNext: (data: any) => void;
     onBack: () => void;
@@ -18,18 +16,17 @@ interface Step3Props {
 
 const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
     const [form, setForm] = useState({
-        businessType: formData.businessType || '',
-        monthlyTurnover: formData.monthlyTurnover || '',
-        bankName: formData.bankName || '',
-        accountNumber: formData.accountNumber || '',
         ifscCode: formData.ifscCode || '',
-        bankBranch: formData.bankBranch || ''
+        accountHolderName: formData.accountHolderName || '',
+        accountNumber: formData.accountNumber || '',
+        paymentGateway: formData.paymentGateway || ''
     });
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
     const [ifscStatus, setIfscStatus] = useState<{ verified: boolean, bank?: string, branch?: string }>({
         verified: false
     });
+    const [isVerifying, setIsVerifying] = useState(false);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -58,36 +55,30 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
             return;
         }
 
-        if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(ifscCode)) {
+        if (ifscCode.length !== 11) {
             setErrors({
                 ...errors,
-                ifscCode: 'Invalid IFSC code format'
+                ifscCode: 'IFSC code must be 11 characters long'
             });
             return;
         }
 
+        setIsVerifying(true);
+
         try {
-            // In a real implementation, you would call an IFSC API
-            // For demo purposes, we'll simulate a response
+            // Use the Razorpay IFSC API as mentioned in the reference code
+            const response = await fetch(`https://ifsc.razorpay.com/${ifscCode}`);
 
-            // Simulate API response delay
-            await new Promise(resolve => setTimeout(resolve, 1000));
+            if (!response.ok) {
+                throw new Error('Invalid IFSC code');
+            }
 
-            // Mock successful response
-            const mockBankName = "DEMO NATIONAL BANK";
-            const mockBranch = "DEMO BRANCH, NEW DELHI";
+            const data = await response.json();
 
             setIfscStatus({
                 verified: true,
-                bank: mockBankName,
-                branch: mockBranch
-            });
-
-            // Auto-fill bank name and branch
-            setForm({
-                ...form,
-                bankName: mockBankName,
-                bankBranch: mockBranch
+                bank: data.BANK,
+                branch: data.BRANCH
             });
 
         } catch (error) {
@@ -96,22 +87,22 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
                 ifscCode: 'Failed to verify IFSC code: ' + (error as Error).message
             });
             setIfscStatus({ verified: false });
+        } finally {
+            setIsVerifying(false);
         }
     };
 
     const validateForm = () => {
         const newErrors: { [key: string]: string } = {};
 
-        if (!form.businessType) {
-            newErrors.businessType = 'Please select your business type';
+        if (!form.ifscCode) {
+            newErrors.ifscCode = 'IFSC code is required';
+        } else if (form.ifscCode.length !== 11) {
+            newErrors.ifscCode = 'IFSC code must be 11 characters long';
         }
 
-        if (!form.monthlyTurnover) {
-            newErrors.monthlyTurnover = 'Please select your monthly turnover';
-        }
-
-        if (!form.bankName) {
-            newErrors.bankName = 'Bank name is required';
+        if (!form.accountHolderName) {
+            newErrors.accountHolderName = 'Account holder name is required';
         }
 
         if (!form.accountNumber) {
@@ -120,14 +111,8 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
             newErrors.accountNumber = 'Please enter a valid account number (9-18 digits)';
         }
 
-        if (!form.ifscCode) {
-            newErrors.ifscCode = 'IFSC code is required';
-        } else if (!/^[A-Z]{4}0[A-Z0-9]{6}$/.test(form.ifscCode)) {
-            newErrors.ifscCode = 'Invalid IFSC code format';
-        }
-
-        if (!form.bankBranch) {
-            newErrors.bankBranch = 'Bank branch is required';
+        if (!form.paymentGateway) {
+            newErrors.paymentGateway = 'Please select an option';
         }
 
         setErrors(newErrors);
@@ -142,80 +127,105 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
         }
     };
 
+    // Update progress in localStorage
+    useEffect(() => {
+        // Check if we're in a browser environment
+        if (typeof window !== 'undefined') {
+            const savedProgress = JSON.parse(localStorage.getItem('formProgress') || '{"completed":0,"percent":0}');
+
+            // Count filled fields on this page
+            let filledFields = 0;
+            if (form.ifscCode) filledFields++;
+            if (form.accountHolderName) filledFields++;
+            if (form.accountNumber) filledFields++;
+            if (form.paymentGateway) filledFields++;
+
+            // Calculate new progress
+            const totalFields = 16; // Total fields across all forms
+            const percent = Math.round(((savedProgress.page1 || 0) + (savedProgress.page2 || 0) + filledFields) / totalFields * 100);
+
+            // Save to localStorage
+            localStorage.setItem('formProgress', JSON.stringify({
+                completed: (savedProgress.page1 || 0) + (savedProgress.page2 || 0) + filledFields,
+                percent: percent,
+                page1: savedProgress.page1 || 0,
+                page2: savedProgress.page2 || 0,
+                page3: filledFields
+            }));
+        }
+    }, [form]);
+
     return (
         <>
             {/* Hero Section */}
-            <div className="hero">
-                <div className="hero-content">
-                    <h1>Banking Details</h1>
-                    <p>We'll need your banking information to set up payments and verify your business.</p>
-                    <ul>
-                        <li>Your banking details are crucial for receiving payments</li>
-                        <li>All information is securely encrypted</li>
-                        <li>You can update these details later if needed</li>
+            <div className="hero d-none d-md-block">
+                <div className="hero-content px-4 py-5">
+                    <h1 className="fs-2 fs-md-1 mb-4">Complete Your Registration</h1>
+                    <p className="mb-4">We need your bank details for payment processing.</p>
+                    <ul className="mb-4 ps-3 ps-md-4">
+                        <li className="mb-2">Secure and encrypted transmission</li>
+                        <li className="mb-2">Required for payout processing</li>
+                        <li className="mb-2">Your information is protected</li>
                     </ul>
-                    <blockquote>Your financial details are safe with us</blockquote>
                 </div>
             </div>
 
             {/* Form Section */}
             <div className="form-section">
-                <div className="form-container">
+                <div className="form-container px-4 py-4 py-md-5 mx-auto" style={{ maxWidth: '600px' }}>
                     <RegistrationProgress currentStep={3} />
+                    <h2 className="text-center mb-4 fs-3 fs-md-2">Bank Details</h2>
 
-                    <h2 className="text-center mb-4">Banking Information</h2>
-                    <p className="text-center mb-4">Please provide your business banking details</p>
+                    {/* Points Counter - Moved from bottom to here */}
+                    <div className="points-counter mb-4 d-flex flex-column align-items-center">
+                        <div className="d-flex justify-content-between w-100 mb-1">
+                            <span>Points: <span id="points" className="fw-bold">60</span>/100</span>
+                            <span className="text-muted small">Complete registration to earn all points</span>
+                        </div>
+                        <div className="progress-container w-100">
+                            <div className="progress" style={{ height: '8px' }}>
+                                <div className="progress-bar" style={{ width: '60%' }}></div>
+                            </div>
+                        </div>
+                    </div>
 
-                    <form id="bankingForm" onSubmit={handleSubmit}>
-                        <div className="row mb-4">
-                            <div className="col-md-6 mb-3">
-                                <div className="form-group">
-                                    <label htmlFor="business-type">Business Type</label>
-                                    <select
-                                        id="business-type"
-                                        name="businessType"
-                                        className={`form-select ${errors.businessType ? 'is-invalid' : ''}`}
-                                        value={form.businessType}
+                    <form id="bankDetailsForm" onSubmit={handleSubmit}>
+                        <div className="form-group mb-4">
+                            <label className="mb-2">Do you also want to sign up for your own payment gateway?</label>
+                            <div className="d-flex flex-wrap gap-3 gap-md-4 mt-2">
+                                <div className="form-check me-3 me-md-0">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="paymentGateway"
+                                        id="paymentGatewayYes"
+                                        value="yes"
+                                        checked={form.paymentGateway === 'yes'}
                                         onChange={handleChange}
-                                    >
-                                        <option value="">Select business type</option>
-                                        <option value="sole-proprietorship">Sole Proprietorship</option>
-                                        <option value="partnership">Partnership</option>
-                                        <option value="llp">Limited Liability Partnership (LLP)</option>
-                                        <option value="private-limited">Private Limited Company</option>
-                                        <option value="public-limited">Public Limited Company</option>
-                                        <option value="other">Other</option>
-                                    </select>
-                                    {errors.businessType && <div className="invalid-feedback">{errors.businessType}</div>}
+                                        required
+                                    />
+                                    <label className="form-check-label" htmlFor="paymentGatewayYes">Yes</label>
+                                </div>
+                                <div className="form-check">
+                                    <input
+                                        className="form-check-input"
+                                        type="radio"
+                                        name="paymentGateway"
+                                        id="paymentGatewayNo"
+                                        value="no"
+                                        checked={form.paymentGateway === 'no'}
+                                        onChange={handleChange}
+                                        required
+                                    />
+                                    <label className="form-check-label" htmlFor="paymentGatewayNo">No</label>
                                 </div>
                             </div>
-                            <div className="col-md-6 mb-3">
-                                <div className="form-group">
-                                    <label htmlFor="monthly-turnover">Monthly Turnover</label>
-                                    <select
-                                        id="monthly-turnover"
-                                        name="monthlyTurnover"
-                                        className={`form-select ${errors.monthlyTurnover ? 'is-invalid' : ''}`}
-                                        value={form.monthlyTurnover}
-                                        onChange={handleChange}
-                                    >
-                                        <option value="">Select monthly turnover</option>
-                                        <option value="less-than-1lakh">Less than ₹1 Lakh</option>
-                                        <option value="1-5lakh">₹1 Lakh - ₹5 Lakh</option>
-                                        <option value="5-10lakh">₹5 Lakh - ₹10 Lakh</option>
-                                        <option value="10-25lakh">₹10 Lakh - ₹25 Lakh</option>
-                                        <option value="25-50lakh">₹25 Lakh - ₹50 Lakh</option>
-                                        <option value="50lakh-1cr">₹50 Lakh - ₹1 Crore</option>
-                                        <option value="more-than-1cr">More than ₹1 Crore</option>
-                                    </select>
-                                    {errors.monthlyTurnover && <div className="invalid-feedback">{errors.monthlyTurnover}</div>}
-                                </div>
-                            </div>
+                            {errors.paymentGateway && <div className="invalid-feedback d-block">{errors.paymentGateway}</div>}
                         </div>
 
                         <div className="form-group mb-3">
-                            <label htmlFor="ifsc-code">IFSC Code</label>
-                            <div className="d-flex align-items-center mb-2">
+                            <label htmlFor="ifsc-code" className="mb-2">Enter IFSC Code</label>
+                            <div className="d-flex flex-column flex-md-row align-items-start align-items-md-center mb-2 gap-2">
                                 <input
                                     type="text"
                                     id="ifsc-code"
@@ -224,67 +234,63 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
                                     placeholder="IFSC Code"
                                     value={form.ifscCode}
                                     onChange={handleChange}
+                                    required
                                 />
                                 <button
                                     type="button"
-                                    className="btn btn-primary verify-btn"
+                                    className="btn btn-primary"
                                     onClick={verifyIFSC}
+                                    disabled={isVerifying}
                                 >
-                                    Verify
+                                    {isVerifying ? (
+                                        <>
+                                            <span className="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Verifying...
+                                        </>
+                                    ) : (
+                                        'Verify'
+                                    )}
                                 </button>
                             </div>
-                            {errors.ifscCode && <div className="invalid-feedback">{errors.ifscCode}</div>}
+                            {errors.ifscCode && <div className="invalid-feedback d-block">{errors.ifscCode}</div>}
                             {ifscStatus.verified && (
-                                <div className="ifsc-details text-success mb-2">
-                                    <div><strong>Bank:</strong> {ifscStatus.bank}</div>
-                                    <div><strong>Branch:</strong> {ifscStatus.branch}</div>
+                                <div id="bank-details-display" className="text-muted small mt-2 p-2 bg-light rounded">
+                                    <div><strong>Bank Name:</strong> <span id="bank-name">{ifscStatus.bank}</span></div>
+                                    <div><strong>Branch:</strong> <span id="bank-branch">{ifscStatus.branch}</span></div>
                                 </div>
                             )}
                         </div>
 
                         <div className="form-group mb-3">
-                            <label htmlFor="bank-name">Bank Name</label>
+                            <label htmlFor="account-name" className="mb-2">Account Holder's Name</label>
                             <input
                                 type="text"
-                                id="bank-name"
-                                name="bankName"
-                                className={`form-control ${errors.bankName ? 'is-invalid' : ''}`}
-                                placeholder="Bank name"
-                                value={form.bankName}
+                                id="account-name"
+                                name="accountHolderName"
+                                className={`form-control ${errors.accountHolderName ? 'is-invalid' : ''}`}
+                                placeholder="Account Holder Name"
+                                value={form.accountHolderName}
                                 onChange={handleChange}
+                                required
                             />
-                            {errors.bankName && <div className="invalid-feedback">{errors.bankName}</div>}
+                            {errors.accountHolderName && <div className="invalid-feedback d-block">{errors.accountHolderName}</div>}
                         </div>
 
-                        <div className="form-group mb-3">
-                            <label htmlFor="account-number">Account Number</label>
+                        <div className="form-group mb-4">
+                            <label htmlFor="account-number" className="mb-2">Account Number</label>
                             <input
                                 type="text"
                                 id="account-number"
                                 name="accountNumber"
                                 className={`form-control ${errors.accountNumber ? 'is-invalid' : ''}`}
-                                placeholder="Account number"
+                                placeholder="Account Number"
                                 value={form.accountNumber}
                                 onChange={handleChange}
+                                required
                             />
-                            {errors.accountNumber && <div className="invalid-feedback">{errors.accountNumber}</div>}
+                            {errors.accountNumber && <div className="invalid-feedback d-block">{errors.accountNumber}</div>}
                         </div>
 
-                        <div className="form-group mb-4">
-                            <label htmlFor="bank-branch">Bank Branch</label>
-                            <input
-                                type="text"
-                                id="bank-branch"
-                                name="bankBranch"
-                                className={`form-control ${errors.bankBranch ? 'is-invalid' : ''}`}
-                                placeholder="Bank branch"
-                                value={form.bankBranch}
-                                onChange={handleChange}
-                            />
-                            {errors.bankBranch && <div className="invalid-feedback">{errors.bankBranch}</div>}
-                        </div>
-
-                        <div className="form-navigation d-flex justify-content-between">
+                        <div className="form-navigation d-flex justify-content-between mt-4">
                             <button type="button" className="btn btn-outline-secondary" onClick={onBack}>Back</button>
                             <button type="submit" className="btn btn-primary">Next →</button>
                         </div>

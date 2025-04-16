@@ -66,30 +66,46 @@ const Step1: React.FC<Step1Props> = ({ formData, onNext }) => {
     return (
         <>
             {/* Hero Section */}
-            <div className="hero">
-                <div className="hero-content">
-                    <h1 className="display-5 mb-4">GrowGlobal Welcomes You to a Global Ecosystem!</h1>
+            <div className="hero d-none d-md-block">
+                <div className="hero-content px-4 py-5">
+                    <h1 className="display-5 mb-4 fs-2 fs-md-1">GrowGlobal Welcomes You to a Global Ecosystem!</h1>
                     <p className="lead mb-4">
                         GrowGlobal has built a powerful platform designed for businesses like yours.
                         Whether you're an emerging trader or a seasoned manufacturer, your next big opportunity starts here.
                     </p>
-                    <ul className="mb-4">
+                    <ul className="mb-4 ps-3 ps-md-4">
                         <li className="mb-2">Share your details and gain access to a global marketplace</li>
                         <li className="mb-2">Connect with high-value buyers and sellers instantly</li>
                         <li className="mb-2">Step into a world where businesses grow beyond borders</li>
                         <li className="mb-2">Share your details to gain Rewards</li>
                     </ul>
-                    <blockquote className="blockquote">"Your success is our mission"</blockquote>
+                    <blockquote className="blockquote border-start ps-3 border-4">
+                        "Your success is our mission"
+                    </blockquote>
                 </div>
             </div>
 
             {/* Form Section */}
             <div className="form-section">
-                <div className="form-container">
+                <div className="form-container px-4 py-4 py-md-5 mx-auto" style={{ maxWidth: '500px' }}>
                     <RegistrationProgress currentStep={1} />
 
-                    <h2 className="mb-4">Get Started Now</h2>
-                    <p className="mb-3">Enter your details</p>
+                    <h2 className="mb-4 text-center fs-3 fs-md-2">Get Started Now</h2>
+
+                    {/* Points Counter */}
+                    <div className="points-counter mb-4 d-flex flex-column align-items-center">
+                        <div className="d-flex justify-content-between w-100 mb-1">
+                            <span>Points: <span id="points" className="fw-bold">20</span>/100</span>
+                            <span className="text-muted small">Complete registration to earn all points</span>
+                        </div>
+                        <div className="progress-container w-100">
+                            <div className="progress" style={{ height: '8px' }}>
+                                <div className="progress-bar" style={{ width: '20%' }}></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <p className="mb-3 text-center">Enter your details</p>
 
                     <form id="registrationForm" onSubmit={handleSubmit}>
                         <div className="mb-3">
@@ -163,10 +179,10 @@ const Step1: React.FC<Step1Props> = ({ formData, onNext }) => {
                             />
                             <label className="form-check-label" htmlFor="terms">I agree to the terms and services</label>
                         </div>
-                        <button type="submit" className="btn btn-primary btn-lg w-100 py-3">Next →</button>
+                        <button type="submit" className="btn btn-primary btn-lg w-100 py-2 py-md-3">Next →</button>
                     </form>
                     <div className="mt-4 text-center">
-                        Already have an account? <a href="/login">Sign in</a>
+                        Already have an account? <a href="/login" className="fw-bold">Sign in</a>
                     </div>
                 </div>
             </div>

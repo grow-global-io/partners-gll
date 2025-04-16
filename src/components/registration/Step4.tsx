@@ -1,16 +1,12 @@
 "use client";
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import RegistrationProgress from './RegistrationProgress';
 
 interface Step4Props {
     formData: {
-        categories: string[];
-        productCount: string;
-        productionCapacity: string;
-        inventoryManagement: string;
-        exportExperience: boolean;
-        exportDestinations: string[];
+        password: string;
+        confirmPassword: string;
     };
     onNext: (data: any) => void;
     onBack: () => void;
@@ -18,46 +14,14 @@ interface Step4Props {
 
 const Step4: React.FC<Step4Props> = ({ formData, onNext, onBack }) => {
     const [form, setForm] = useState({
-        categories: formData.categories || [],
-        productCount: formData.productCount || '',
-        productionCapacity: formData.productionCapacity || '',
-        inventoryManagement: formData.inventoryManagement || '',
-        exportExperience: formData.exportExperience || false,
-        exportDestinations: formData.exportDestinations || []
+        password: formData.password || '',
+        confirmPassword: formData.confirmPassword || '',
     });
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
-    // Available categories for selection
-    const categoryOptions = [
-        'Apparel & Clothing',
-        'Beauty & Personal Care',
-        'Electronics & Appliances',
-        'Food & Beverages',
-        'Furniture & Home Decor',
-        'Handicrafts & Artisanal Products',
-        'Health & Wellness',
-        'Jewelry & Accessories',
-        'Leather Goods',
-        'Organic & Eco-friendly Products',
-        'Textiles & Fabrics',
-        'Toys & Games',
-        'Other'
-    ];
-
-    // Available export destinations for selection
-    const destinationOptions = [
-        'North America',
-        'Europe',
-        'Middle East',
-        'Asia Pacific',
-        'Africa',
-        'South America',
-        'Australia',
-        'Other'
-    ];
-
-    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value } = e.target;
         setForm({
             ...form,
@@ -71,52 +35,17 @@ const Step4: React.FC<Step4Props> = ({ formData, onNext, onBack }) => {
                 [name]: ''
             });
         }
-    };
 
-    const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        const { name, checked } = e.target;
-        setForm({
-            ...form,
-            [name]: checked
-        });
-    };
-
-    const handleCategoryChange = (category: string) => {
-        const updatedCategories = form.categories.includes(category)
-            ? form.categories.filter(c => c !== category)
-            : [...form.categories, category];
-
-        setForm({
-            ...form,
-            categories: updatedCategories
-        });
-
-        // Clear category error if at least one is selected
-        if (updatedCategories.length > 0 && errors.categories) {
+        // Check password match when confirm password is changed
+        if (name === 'confirmPassword' && form.password !== value) {
             setErrors({
                 ...errors,
-                categories: ''
+                confirmPassword: 'Passwords do not match'
             });
-        }
-    };
-
-    const handleDestinationChange = (destination: string) => {
-        if (!form.exportExperience) return;
-
-        const updatedDestinations = form.exportDestinations.includes(destination)
-            ? form.exportDestinations.filter(d => d !== destination)
-            : [...form.exportDestinations, destination];
-
-        setForm({
-            ...form,
-            exportDestinations: updatedDestinations
-        });
-
-        // Clear destination error if at least one is selected (when export experience is true)
-        if (updatedDestinations.length > 0 && errors.exportDestinations) {
+        } else if (name === 'confirmPassword') {
             setErrors({
                 ...errors,
-                exportDestinations: ''
+                confirmPassword: ''
             });
         }
     };
@@ -124,201 +53,165 @@ const Step4: React.FC<Step4Props> = ({ formData, onNext, onBack }) => {
     const validateForm = () => {
         const newErrors: { [key: string]: string } = {};
 
-        if (form.categories.length === 0) {
-            newErrors.categories = 'Please select at least one product category';
+        // Validate password
+        if (!form.password) {
+            newErrors.password = 'Password is required';
+        } else if (form.password.length < 8) {
+            newErrors.password = 'Password must be at least 8 characters';
+        } else if (!/[A-Z]/.test(form.password)) {
+            newErrors.password = 'Password must include uppercase letters';
+        } else if (!/[a-z]/.test(form.password)) {
+            newErrors.password = 'Password must include lowercase letters';
+        } else if (!/[0-9]/.test(form.password)) {
+            newErrors.password = 'Password must include at least one number';
         }
 
-        if (!form.productCount) {
-            newErrors.productCount = 'Please select your approximate product count';
-        }
-
-        if (!form.productionCapacity) {
-            newErrors.productionCapacity = 'Please select your monthly production capacity';
-        }
-
-        if (!form.inventoryManagement) {
-            newErrors.inventoryManagement = 'Please select how you manage your inventory';
-        }
-
-        if (form.exportExperience && form.exportDestinations.length === 0) {
-            newErrors.exportDestinations = 'Please select at least one export destination';
+        // Validate confirm password
+        if (!form.confirmPassword) {
+            newErrors.confirmPassword = 'Please confirm your password';
+        } else if (form.password !== form.confirmPassword) {
+            newErrors.confirmPassword = 'Passwords do not match';
         }
 
         setErrors(newErrors);
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
         if (validateForm()) {
-            onNext(form);
+            setIsSubmitting(true);
+
+            try {
+                // Simulate OTP sending delay
+                await new Promise(resolve => setTimeout(resolve, 1500));
+
+                // Show success message (using browser alert for simplicity)
+                // In a real implementation, you could use a toast library or custom component
+                alert('OTP has been sent to your registered email.');
+
+                // Navigate to next step
+                onNext(form);
+            } catch (error) {
+                console.error('Error sending OTP:', error);
+                alert('Failed to send OTP. Please try again.');
+            } finally {
+                setIsSubmitting(false);
+            }
         }
     };
+
+    // Update progress in localStorage
+    useEffect(() => {
+        // Check if we're in a browser environment
+        if (typeof window !== 'undefined') {
+            const savedProgress = JSON.parse(localStorage.getItem('formProgress') || '{"completed":0,"percent":0}');
+
+            // Count filled fields on this page
+            let filledFields = 0;
+            if (form.password) filledFields++;
+            if (form.confirmPassword) filledFields++;
+
+            // Calculate new progress
+            const totalFields = 16; // Total fields across all forms
+            const percent = Math.round(((savedProgress.page1 || 0) + (savedProgress.page2 || 0) + (savedProgress.page3 || 0) + filledFields) / totalFields * 100);
+
+            // Save to localStorage
+            localStorage.setItem('formProgress', JSON.stringify({
+                completed: (savedProgress.page1 || 0) + (savedProgress.page2 || 0) + (savedProgress.page3 || 0) + filledFields,
+                percent: percent,
+                page1: savedProgress.page1 || 0,
+                page2: savedProgress.page2 || 0,
+                page3: savedProgress.page3 || 0,
+                page4: filledFields
+            }));
+        }
+    }, [form]);
 
     return (
         <>
             {/* Hero Section */}
-            <div className="hero">
-                <div className="hero-content">
-                    <h1>Product Information</h1>
-                    <p>Tell us about the products you offer and your manufacturing capacity.</p>
-                    <ul>
-                        <li>This helps us match you with the right buyers</li>
-                        <li>Be specific about your production capabilities</li>
-                        <li>Your export experience can open new global opportunities</li>
+            <div className="hero d-none d-md-block">
+                <div className="hero-content px-4 py-5">
+                    <h1 className="fs-2 fs-md-1 mb-4">Set Your New Password</h1>
+                    <p className="mb-4">Create a new secure password for your account.</p>
+                    <ul className="mb-4 ps-3 ps-md-4">
+                        <li className="mb-2">Password must be at least 8 characters</li>
+                        <li className="mb-2">Include uppercase and lowercase letters</li>
+                        <li className="mb-2">Include at least one number</li>
                     </ul>
-                    <blockquote>The more we know about your products, the better we can help you grow</blockquote>
                 </div>
             </div>
 
             {/* Form Section */}
             <div className="form-section">
-                <div className="form-container">
+                <div className="form-container px-4 py-4 py-md-5 mx-auto" style={{ maxWidth: '500px' }}>
                     <RegistrationProgress currentStep={4} />
+                    <h2 className="text-center mb-4 fs-3 fs-md-2">Set New Password</h2>
 
-                    <h2 className="text-center mb-4">Product Details</h2>
-                    <p className="text-center mb-4">Tell us about what you sell and produce</p>
-
-                    <form id="productForm" onSubmit={handleSubmit}>
-                        <div className="form-group mb-4">
-                            <label>Product Categories <span className="text-danger">*</span></label>
-                            <p className="small text-muted mb-2">Select all categories that apply to your products</p>
-
-                            <div className="categories-container">
-                                {categoryOptions.map(category => (
-                                    <div className="form-check" key={category}>
-                                        <input
-                                            type="checkbox"
-                                            className="form-check-input"
-                                            id={`category-${category.toLowerCase().replace(/\s+/g, '-')}`}
-                                            checked={form.categories.includes(category)}
-                                            onChange={() => handleCategoryChange(category)}
-                                        />
-                                        <label
-                                            className="form-check-label"
-                                            htmlFor={`category-${category.toLowerCase().replace(/\s+/g, '-')}`}
-                                        >
-                                            {category}
-                                        </label>
-                                    </div>
-                                ))}
-                            </div>
-                            {errors.categories && <div className="text-danger mt-2 small">{errors.categories}</div>}
+                    {/* Points Counter */}
+                    <div className="points-counter mb-4 d-flex flex-column align-items-center">
+                        <div className="d-flex justify-content-between w-100 mb-1">
+                            <span>Points: <span id="points" className="fw-bold">80</span>/100</span>
+                            <span className="text-muted small">Complete registration to earn all points</span>
                         </div>
-
-                        <div className="row mb-4">
-                            <div className="col-md-6 mb-3">
-                                <div className="form-group">
-                                    <label htmlFor="product-count">Number of Products</label>
-                                    <select
-                                        id="product-count"
-                                        name="productCount"
-                                        className={`form-select ${errors.productCount ? 'is-invalid' : ''}`}
-                                        value={form.productCount}
-                                        onChange={handleChange}
-                                    >
-                                        <option value="">Select approximate number</option>
-                                        <option value="1-10">1-10 products</option>
-                                        <option value="11-50">11-50 products</option>
-                                        <option value="51-100">51-100 products</option>
-                                        <option value="101-500">101-500 products</option>
-                                        <option value="501-1000">501-1000 products</option>
-                                        <option value="1000+">More than 1000 products</option>
-                                    </select>
-                                    {errors.productCount && <div className="invalid-feedback">{errors.productCount}</div>}
-                                </div>
-                            </div>
-                            <div className="col-md-6 mb-3">
-                                <div className="form-group">
-                                    <label htmlFor="production-capacity">Monthly Production Capacity</label>
-                                    <select
-                                        id="production-capacity"
-                                        name="productionCapacity"
-                                        className={`form-select ${errors.productionCapacity ? 'is-invalid' : ''}`}
-                                        value={form.productionCapacity}
-                                        onChange={handleChange}
-                                    >
-                                        <option value="">Select production capacity</option>
-                                        <option value="small-batch">Small Batch (Less than 100 units)</option>
-                                        <option value="medium-batch">Medium Batch (100-500 units)</option>
-                                        <option value="large-batch">Large Batch (501-1000 units)</option>
-                                        <option value="mass-production">Mass Production (1000+ units)</option>
-                                        <option value="custom">Custom/Made-to-Order only</option>
-                                    </select>
-                                    {errors.productionCapacity && <div className="invalid-feedback">{errors.productionCapacity}</div>}
-                                </div>
+                        <div className="progress-container w-100">
+                            <div className="progress" style={{ height: '8px' }}>
+                                <div className="progress-bar" style={{ width: '80%' }}></div>
                             </div>
                         </div>
+                    </div>
 
-                        <div className="form-group mb-4">
-                            <label htmlFor="inventory-management">How do you manage inventory?</label>
-                            <select
-                                id="inventory-management"
-                                name="inventoryManagement"
-                                className={`form-select ${errors.inventoryManagement ? 'is-invalid' : ''}`}
-                                value={form.inventoryManagement}
+                    <form id="passwordForm" onSubmit={handleSubmit}>
+                        <div className="form-group mb-3">
+                            <label htmlFor="new-password" className="mb-2">New Password</label>
+                            <input
+                                type="password"
+                                id="new-password"
+                                name="password"
+                                className={`form-control form-control-lg ${errors.password ? 'is-invalid' : ''}`}
+                                placeholder="Enter new password"
+                                value={form.password}
                                 onChange={handleChange}
-                            >
-                                <option value="">Select inventory management method</option>
-                                <option value="manual">Manual tracking (spreadsheets, paper records)</option>
-                                <option value="basic-software">Basic inventory software</option>
-                                <option value="erp">ERP system</option>
-                                <option value="just-in-time">Just-in-time production (minimal inventory)</option>
-                                <option value="third-party">Third-party logistics provider</option>
-                                <option value="other">Other</option>
-                            </select>
-                            {errors.inventoryManagement && <div className="invalid-feedback">{errors.inventoryManagement}</div>}
+                                required
+                            />
+                            {errors.password && <div className="invalid-feedback">{errors.password}</div>}
                         </div>
 
                         <div className="form-group mb-4">
-                            <div className="form-check form-switch">
-                                <input
-                                    className="form-check-input"
-                                    type="checkbox"
-                                    role="switch"
-                                    id="export-experience"
-                                    name="exportExperience"
-                                    checked={form.exportExperience}
-                                    onChange={handleCheckboxChange}
-                                />
-                                <label className="form-check-label" htmlFor="export-experience">
-                                    Do you have experience exporting your products?
-                                </label>
-                            </div>
+                            <label htmlFor="confirm-password" className="mb-2">Confirm Password</label>
+                            <input
+                                type="password"
+                                id="confirm-password"
+                                name="confirmPassword"
+                                className={`form-control form-control-lg ${errors.confirmPassword ? 'is-invalid' : ''}`}
+                                placeholder="Confirm new password"
+                                value={form.confirmPassword}
+                                onChange={handleChange}
+                                required
+                            />
+                            {errors.confirmPassword && (
+                                <div className="invalid-feedback">
+                                    {errors.confirmPassword}
+                                </div>
+                            )}
                         </div>
 
-                        {form.exportExperience && (
-                            <div className="form-group mb-4 export-destinations-section">
-                                <label>Export Destinations <span className="text-danger">*</span></label>
-                                <p className="small text-muted mb-2">Select regions where you currently export or have exported in the past</p>
-
-                                <div className="destinations-container">
-                                    {destinationOptions.map(destination => (
-                                        <div className="form-check" key={destination}>
-                                            <input
-                                                type="checkbox"
-                                                className="form-check-input"
-                                                id={`destination-${destination.toLowerCase().replace(/\s+/g, '-')}`}
-                                                checked={form.exportDestinations.includes(destination)}
-                                                onChange={() => handleDestinationChange(destination)}
-                                            />
-                                            <label
-                                                className="form-check-label"
-                                                htmlFor={`destination-${destination.toLowerCase().replace(/\s+/g, '-')}`}
-                                            >
-                                                {destination}
-                                            </label>
-                                        </div>
-                                    ))}
-                                </div>
-                                {errors.exportDestinations && <div className="text-danger mt-2 small">{errors.exportDestinations}</div>}
-                            </div>
-                        )}
-
-                        <div className="form-navigation d-flex justify-content-between">
-                            <button type="button" className="btn btn-outline-secondary" onClick={onBack}>Back</button>
-                            <button type="submit" className="btn btn-primary">Next →</button>
+                        <div className="form-navigation mt-4">
+                            <button
+                                type="submit"
+                                className="btn btn-primary btn-lg w-100 py-2 py-md-3"
+                                disabled={isSubmitting}
+                            >
+                                {isSubmitting ? (
+                                    <>
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Sending OTP
+                                    </>
+                                ) : (
+                                    'Send OTP'
+                                )}
+                            </button>
                         </div>
                     </form>
                 </div>
