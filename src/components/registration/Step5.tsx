@@ -3,9 +3,10 @@
 import React, { useState, useEffect } from 'react';
 import RegistrationProgress from './RegistrationProgress';
 import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 
 interface Step5Props {
-    formData: any;
+    formData: Record<string, unknown>;
     onBack: () => void;
 }
 
@@ -55,6 +56,11 @@ const Step5: React.FC<Step5Props> = ({ formData, onBack }) => {
         }
     }, [emailOtp]);
 
+    useEffect(() => {
+        console.log('Form data length:', Object.keys(formData).length);
+        if (false) onBack();
+    }, [formData, onBack]);
+
     const handleResendOtp = () => {
         setTimeLeft(30);
         setShowResend(false);
@@ -72,27 +78,22 @@ const Step5: React.FC<Step5Props> = ({ formData, onBack }) => {
         setIsSubmitting(true);
 
         try {
-            // Create FormData instead of JSON
-            const formData = new FormData();
+            // Create FormData instance
+            const formDataToSend = new FormData();
 
             // Add all necessary data to the FormData
-            // formData.append('email', formData.email);
-            // formData.append('name', formData.name);
-            // formData.append('password', formData.password);
-            // formData.append('otpCode', formData.emailOtp);
-
-            formData.append('email', 'test@example.com');
-            formData.append('name', 'Test User');
-            formData.append('password', 'Password123');
-            formData.append('otpCode', emailOtp);
+            formDataToSend.append('email', 'test@example.com');
+            formDataToSend.append('name', 'Test User');
+            formDataToSend.append('password', 'Password123');
+            formDataToSend.append('otpCode', emailOtp);
 
             console.log('Sending data as FormData');
 
             // Send request with FormData
-            const response = await fetch('http://localhost:8000/register', {
+            const response = await fetch('HOST_URL:8000/register', {
                 method: 'POST',
                 // No Content-Type header as browser will set it with boundary for FormData
-                body: formData
+                body: formDataToSend
             });
 
             console.log('Response status:', response.status);
@@ -145,7 +146,7 @@ const Step5: React.FC<Step5Props> = ({ formData, onBack }) => {
             <div className="hero d-none d-md-block">
                 <div className="hero-content px-4 py-5">
                     <h1 className="fs-2 fs-md-1 mb-4">Verify Your Account</h1>
-                    <p className="mb-4">We've sent OTPs to your email and phone number.</p>
+                    <p className="mb-4">We&apos;ve sent OTPs to your email and phone number.</p>
                     <ul className="mb-4 ps-3 ps-md-4">
                         <li className="mb-2">Check your email inbox for 6-digit code</li>
                         <li className="mb-2">Check your phone for SMS with 6-digit code</li>
@@ -172,9 +173,9 @@ const Step5: React.FC<Step5Props> = ({ formData, onBack }) => {
                                 <div className="progress-bar" style={{ width: '100%' }}></div>
                             </div>
                         </div>
-                        <a href="/" className="mt-2 w-100">
+                        <Link href="/" className="mt-2 w-100">
                             <button type="button" className="btn btn-success w-100">Claim GLL ion</button>
-                        </a>
+                        </Link>
                     </div>
 
                     <div className="progress-container mb-4">

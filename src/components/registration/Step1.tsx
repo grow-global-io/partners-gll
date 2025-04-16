@@ -2,7 +2,7 @@
 
 import React, { useState } from 'react';
 import RegistrationProgress from './RegistrationProgress';
-import { useRouter } from 'next/navigation';
+// import { useRouter } from 'next/navigation';
 import Swal from 'sweetalert2';
 
 interface Step1Props {
@@ -14,7 +14,7 @@ interface Step1Props {
         international: boolean;
         terms: boolean;
     };
-    onNext: (data: any) => void;
+    onNext: (data: Record<string, unknown>) => void;
 }
 
 const Step1: React.FC<Step1Props> = ({ formData, onNext }) => {
@@ -26,8 +26,6 @@ const Step1: React.FC<Step1Props> = ({ formData, onNext }) => {
         international: formData.international || false,
         terms: formData.terms || false
     });
-
-    const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, value, type, checked } = e.target;
@@ -71,7 +69,7 @@ const Step1: React.FC<Step1Props> = ({ formData, onNext }) => {
                     <h1 className="display-5 mb-4 fs-2 fs-md-1">GrowGlobal Welcomes You to a Global Ecosystem!</h1>
                     <p className="lead mb-4">
                         GrowGlobal has built a powerful platform designed for businesses like yours.
-                        Whether you're an emerging trader or a seasoned manufacturer, your next big opportunity starts here.
+                        Whether you&apos;re an emerging trader or a seasoned manufacturer, your next big opportunity starts here.
                     </p>
                     <ul className="mb-4 ps-3 ps-md-4">
                         <li className="mb-2">Share your details and gain access to a global marketplace</li>
@@ -80,7 +78,7 @@ const Step1: React.FC<Step1Props> = ({ formData, onNext }) => {
                         <li className="mb-2">Share your details to gain Rewards</li>
                     </ul>
                     <blockquote className="blockquote border-start ps-3 border-4">
-                        "Your success is our mission"
+                        &quot;Your success is our mission&quot;
                     </blockquote>
                 </div>
             </div>

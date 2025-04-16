@@ -40,13 +40,13 @@ const RegistrationComplete: React.FC<RegistrationCompleteProps> = ({ userData })
                         </p>
                     )}
                     <p>
-                        Once your account is approved, you'll receive access credentials to your seller dashboard
+                        Once your account is approved, you&apos;ll receive access credentials to your seller dashboard
                         where you can start listing your products and managing your business on our marketplace.
                     </p>
                 </div>
 
                 <div className="next-steps">
-                    <h3>What's Next?</h3>
+                    <h3>What&apos;s Next?</h3>
                     <ol>
                         <li>Verification of your submitted documents (2-3 business days)</li>
                         <li>Account activation email with login credentials</li>

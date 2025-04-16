@@ -7,7 +7,7 @@ const Features: React.FC = () => {
         <section id="services" className="py-5">
             <div className="container wow fadeIn px-4">
                 <div className="section-header text-center mb-5">
-                    <h3 className="section-title fs-2 mb-2" style={{ color: 'rgb(0, 0, 0)' }}>Why Partner's Sell on</h3>
+                    <h3 className="section-title fs-2 mb-2" style={{ color: 'rgb(0, 0, 0)' }}>Why Partner&apos;s Sell on</h3>
                     <h3 className="section-title fs-2 mb-3" style={{ color: 'blueviolet' }}>GrowGlobal.io</h3>
                     <p className="section-description mx-auto" style={{ maxWidth: '900px' }}>
                         Thousands of verified buyers across India trust GrowGLoabl.io as their go-to platform for quality products.
@@ -39,7 +39,7 @@ const Features: React.FC = () => {
                             <div className="icon mb-3"><a href="#services"><i className="bi bi-box-seam fs-3"></i></a></div>
                             <h4 className="title mb-3"><a href="#services">No Inventory? No Problem!</a></h4>
                             <p className="description">
-                                Operate on a 'No Inventory Business Model' by listing your products with Production TAT and fulfill orders efficiently.
+                                Operate on a &apos;No Inventory Business Model&apos; by listing your products with Production TAT and fulfill orders efficiently.
                             </p>
                         </div>
                     </div>

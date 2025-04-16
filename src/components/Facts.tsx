@@ -1,10 +1,8 @@
 "use client";
 
-import React, { useEffect, useRef } from 'react';
+import React, { useEffect } from 'react';
 
 const Facts: React.FC = () => {
-    const counterRefs = useRef<HTMLSpanElement[]>([]);
-
     useEffect(() => {
         const observer = new IntersectionObserver(
             (entries) => {

@@ -40,7 +40,7 @@ export default function LoginPage() {
 
                                     <div className="login-footer">
                                         <p>Forgot your password? <a href="#">Reset it here</a></p>
-                                        <p>Don't have an account? <Link href="/registration">Register now</Link></p>
+                                        <p>Don&apos;t have an account? <Link href="/registration">Register now</Link></p>
                                     </div>
                                 </div>
                             </div>

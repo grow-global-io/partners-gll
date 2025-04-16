@@ -9,12 +9,12 @@ interface Step2Props {
         companyName: string;
         companyAddress: string;
         companyType: string;
-        msmeCertificate: any;
-        oemCertificate: any;
-        fy2324Data: any;
-        fy2425Data: any;
+        msmeCertificate: File | null;
+        oemCertificate: File | null;
+        fy2324Data: File | null;
+        fy2425Data: File | null;
     };
-    onNext: (data: any) => void;
+    onNext: (data: Record<string, unknown>) => void;
     onBack: () => void;
 }
 
@@ -176,9 +176,9 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
                     formData.append('additionalFilesType', 'fy2425');
                 }
 
-                console.log('Attempting to upload to localhost:8000/upload...');
+                console.log('Attempting to upload to HOST_URL:8000/upload...');
                 console.log('FormData entries:');
-                for (let pair of formData.entries()) {
+                for (const pair of formData.entries()) {
                     console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
                 }
 
@@ -187,7 +187,7 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-                    const response = await fetch('http://localhost:8000/upload', {
+                    const response = await fetch('HOST_URL:8000/upload', {
                         method: 'POST',
                         body: formData,
                         signal: controller.signal,
@@ -246,7 +246,7 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
                     <h1 className="fs-2 fs-md-1 mb-4">Your Business Deserves a Bigger Stage!</h1>
                     <p className="mb-4">We understand your business is unique, and so are your needs.</p>
                     <ul className="mb-4 ps-3 ps-md-4">
-                        <li className="mb-2">Tell us who you are—whether you're a Trader or an OEM.</li>
+                        <li className="mb-2">Tell us who you are—whether you&apos;re a Trader or an OEM.</li>
                         <li className="mb-2">Get featured in an ecosystem designed for growth</li>
                         <li className="mb-2">No inventory? No problem. Sell smarter with Anti Mascot</li>
                     </ul>

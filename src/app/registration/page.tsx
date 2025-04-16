@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
-import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import RegistrationStep1 from '@/components/registration/Step1';
 import RegistrationStep2 from '@/components/registration/Step2';
@@ -56,6 +55,9 @@ interface FormData {
     inventoryManagement: string;
     exportExperience: boolean;
     exportDestinations: string[];
+
+    // Allow additional string indexed properties
+    [key: string]: unknown;
 }
 
 export default function RegistrationPage() {

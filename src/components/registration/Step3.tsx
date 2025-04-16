@@ -6,20 +6,22 @@ import RegistrationProgress from './RegistrationProgress';
 interface Step3Props {
     formData: {
         ifscCode: string;
-        accountHolderName: string;
+        accountName: string;
         accountNumber: string;
-        paymentGateway: string;
+        wantPaymentGateway: boolean;
+        bankName?: string;
+        bankBranch?: string;
     };
-    onNext: (data: any) => void;
+    onNext: (data: Record<string, unknown>) => void;
     onBack: () => void;
 }
 
 const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
     const [form, setForm] = useState({
         ifscCode: formData.ifscCode || '',
-        accountHolderName: formData.accountHolderName || '',
+        accountHolderName: formData.accountName || '',
         accountNumber: formData.accountNumber || '',
-        paymentGateway: formData.paymentGateway || ''
+        paymentGateway: formData.wantPaymentGateway ? 'yes' : (formData.wantPaymentGateway === false ? 'no' : '')
     });
 
     const [errors, setErrors] = useState<{ [key: string]: string }>({});
@@ -123,7 +125,17 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
         e.preventDefault();
 
         if (validateForm()) {
-            onNext(form);
+            // Convert to the format expected by the parent component
+            const formattedData = {
+                ifscCode: form.ifscCode,
+                accountName: form.accountHolderName,
+                accountNumber: form.accountNumber,
+                wantPaymentGateway: form.paymentGateway === 'yes',
+                bankName: ifscStatus.bank || '',
+                bankBranch: ifscStatus.branch || ''
+            };
+
+            onNext(formattedData);
         }
     };
 
@@ -261,7 +273,7 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
                         </div>
 
                         <div className="form-group mb-3">
-                            <label htmlFor="account-name" className="mb-2">Account Holder's Name</label>
+                            <label htmlFor="account-name" className="mb-2">Account Holder&apos;s Name</label>
                             <input
                                 type="text"
                                 id="account-name"
