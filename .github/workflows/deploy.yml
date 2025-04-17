@@ -33,7 +33,7 @@ jobs:
                 username: u644247801.gllpartners
                 password: ${{secrets.FTP_PASSWORD}}
                 local-dir: ./out/
-                server-dir: /public_html/partner
+                server-dir: ./public_html/partner/
                
                 
                 
