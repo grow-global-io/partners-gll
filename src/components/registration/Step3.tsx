@@ -130,7 +130,6 @@ const Step3: React.FC<Step3Props> = ({ formData, onBack }) => {
         if (validateForm()) {
             // Convert to the format expected by the parent component
             
-            
             const payload = {
                 ...formData,
                 ifscCode: form.ifscCode,
