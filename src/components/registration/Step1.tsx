@@ -62,7 +62,7 @@ const Step1: React.FC<Step1Props> = ({ formData, onNext }) => {
             return;
         }
 
-        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/personal-details`, {
+        await fetch(`${process.env.NEXT_PUBLIC_API_URL}/personal-details`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

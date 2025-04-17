@@ -18,7 +18,7 @@ interface Step3Props {
     onBack: () => void;
 }
 
-const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
+const Step3: React.FC<Step3Props> = ({ formData, onBack }) => {
     const [form, setForm] = useState({
         ifscCode: formData.ifscCode || '',
         accountHolderName: formData.accountName || '',
@@ -129,14 +129,7 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
 
         if (validateForm()) {
             // Convert to the format expected by the parent component
-            const formattedData = {
-                ifscCode: form.ifscCode,
-                accountName: form.accountHolderName,
-                accountNumber: form.accountNumber,
-                wantPaymentGateway: form.paymentGateway === 'yes',
-                bankName: ifscStatus.bank || '',
-                bankBranch: ifscStatus.branch || ''
-            };
+            
             
             const payload = {
                 ...formData,
@@ -149,7 +142,7 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
             };
             console.log('Sending data as JSON:', JSON.stringify(payload));
             debugger
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
+            await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

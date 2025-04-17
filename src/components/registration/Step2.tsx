@@ -51,6 +51,7 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
 
     const handleFileChange = async(e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, files } = e.target;
+        setCompanyDetails({display: false})
 
         if (files && files.length > 0) {
             const file = files[0];
@@ -99,41 +100,41 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
         setShowCertificates(true);
     };
 
-    const verifyGST = async () => {
-        const gstNumber = form.gstNumber.trim();
+    // const verifyGST = async () => {
+    //     const gstNumber = form.gstNumber.trim();
 
-        if (gstNumber.length !== 15) {
-            alert('GST number must be 15 characters long');
-            return;
-        }
+    //     if (gstNumber.length !== 15) {
+    //         alert('GST number must be 15 characters long');
+    //         return;
+    //     }
 
-        try {
-            // This is a mock verification - in a real app, you would call an actual GST API
-            // const response = await fetch(`http://sheet.gstincheck.co.in/check/262500cc3be01c84505a267d44d49d58/${gstNumber}`);
-            // const data = await response.json();
+    //     try {
+    //         // This is a mock verification - in a real app, you would call an actual GST API
+    //         // const response = await fetch(`http://sheet.gstincheck.co.in/check/262500cc3be01c84505a267d44d49d58/${gstNumber}`);
+    //         // const data = await response.json();
 
-            // For demo purposes, we'll just set some mock data
-            const mockCompanyName = "Demo Company Pvt Ltd";
-            const mockAddress = "123 Business Street, Business City";
+    //         // For demo purposes, we'll just set some mock data
+    //         const mockCompanyName = "Demo Company Pvt Ltd";
+    //         const mockAddress = "123 Business Street, Business City";
 
-            setCompanyDetails({
-                display: true,
-                name: mockCompanyName,
-                address: mockAddress
-            });
+    //         setCompanyDetails({
+    //             display: true,
+    //             name: mockCompanyName,
+    //             address: mockAddress
+    //         });
 
-            // Auto-fill company name and address fields
-            setForm({
-                ...form,
-                companyName: mockCompanyName,
-                companyAddress: mockAddress
-            });
+    //         // Auto-fill company name and address fields
+    //         setForm({
+    //             ...form,
+    //             companyName: mockCompanyName,
+    //             companyAddress: mockAddress
+    //         });
 
-        } catch (error) {
-            alert('Error verifying GST: ' + (error as Error).message);
-            setCompanyDetails({ display: false });
-        }
-    };
+    //     } catch (error) {
+    //         alert('Error verifying GST: ' + (error as Error).message);
+    //         setCompanyDetails({ display: false });
+    //     }
+    // };
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
@@ -161,97 +162,97 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
         }
 
         // Upload certificate files
-        const uploadCertificate = async () => {
-            try {
-                const formData = new FormData();
+        // const uploadCertificate = async () => {
+        //     try {
+        //         const formData = new FormData();
 
-                // Add the appropriate certificate based on company type
-                if (form.companyType === 'trader' && form.msmeCertificate) {
-                    formData.append('file', form.msmeCertificate);
-                    formData.append('type', 'msme');
-                } else if (form.companyType === 'manufacturer' && form.oemCertificate) {
-                    formData.append('file', form.oemCertificate);
-                    formData.append('type', 'oem');
-                }
+        //         // Add the appropriate certificate based on company type
+        //         if (form.companyType === 'trader' && form.msmeCertificate) {
+        //             formData.append('file', form.msmeCertificate);
+        //             formData.append('type', 'msme');
+        //         } else if (form.companyType === 'manufacturer' && form.oemCertificate) {
+        //             formData.append('file', form.oemCertificate);
+        //             formData.append('type', 'oem');
+        //         }
 
-                // Add business details as JSON
-                const metadata = {
-                    companyName: form.companyName,
-                    gstNumber: form.gstNumber,
-                    companyType: form.companyType,
-                    companyAddress: form.companyAddress
-                };
+        //         // Add business details as JSON
+        //         const metadata = {
+        //             companyName: form.companyName,
+        //             gstNumber: form.gstNumber,
+        //             companyType: form.companyType,
+        //             companyAddress: form.companyAddress
+        //         };
 
-                formData.append('metadata', JSON.stringify(metadata));
+        //         formData.append('metadata', JSON.stringify(metadata));
 
-                // Additional files if available
-                if (form.fy2324Data) {
-                    formData.append('additionalFiles', form.fy2324Data);
-                    formData.append('additionalFilesType', 'fy2324');
-                }
+        //         // Additional files if available
+        //         if (form.fy2324Data) {
+        //             formData.append('additionalFiles', form.fy2324Data);
+        //             formData.append('additionalFilesType', 'fy2324');
+        //         }
 
-                if (form.fy2425Data) {
-                    formData.append('additionalFiles', form.fy2425Data);
-                    formData.append('additionalFilesType', 'fy2425');
-                }
+        //         if (form.fy2425Data) {
+        //             formData.append('additionalFiles', form.fy2425Data);
+        //             formData.append('additionalFilesType', 'fy2425');
+        //         }
 
-                console.log('Attempting to upload to HOST_URL:8000/upload...');
-                console.log('FormData entries:');
-                for (const pair of formData.entries()) {
-                    console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
-                }
+        //         console.log('Attempting to upload to HOST_URL:8000/upload...');
+        //         console.log('FormData entries:');
+        //         for (const pair of formData.entries()) {
+        //             console.log(pair[0] + ': ' + (pair[1] instanceof File ? pair[1].name : pair[1]));
+        //         }
 
-                try {
-                    // Send to the upload endpoint with timeout
-                    const controller = new AbortController();
-                    const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
+        //         try {
+        //             // Send to the upload endpoint with timeout
+        //             const controller = new AbortController();
+        //             const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
-                        method: 'POST',
-                        body: formData,
-                        signal: controller.signal,
-                        // Don't set Content-Type header, the browser will set it automatically with boundary
-                        headers: {
-                            'Accept': 'application/json'
-                        }
-                    });
+        //             const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
+        //                 method: 'POST',
+        //                 body: formData,
+        //                 signal: controller.signal,
+        //                 // Don't set Content-Type header, the browser will set it automatically with boundary
+        //                 headers: {
+        //                     'Accept': 'application/json'
+        //                 }
+        //             });
 
-                    clearTimeout(timeoutId);
+        //             clearTimeout(timeoutId);
 
-                    if (!response.ok) {
-                        const errorText = await response.text();
-                        throw new Error(`Upload failed: ${response.status} ${response.statusText}. Details: ${errorText}`);
-                    }
+        //             if (!response.ok) {
+        //                 const errorText = await response.text();
+        //                 throw new Error(`Upload failed: ${response.status} ${response.statusText}. Details: ${errorText}`);
+        //             }
 
-                    const result = await response.json();
-                    console.log('Upload successful:', result);
-                } catch (fetchError: unknown) {
-                    if (fetchError instanceof Error && fetchError.name === 'AbortError') {
-                        console.error('Request timed out');
-                        throw new Error('Connection to upload server timed out. Please try again or proceed without uploading.');
-                    } else {
-                        console.error('Fetch error:', fetchError);
-                        const errorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown fetch error';
-                        throw new Error(`Connection error: ${errorMessage}. The server might be offline.`);
-                    }
-                }
+        //             const result = await response.json();
+        //             console.log('Upload successful:', result);
+        //         } catch (fetchError: unknown) {
+        //             if (fetchError instanceof Error && fetchError.name === 'AbortError') {
+        //                 console.error('Request timed out');
+        //                 throw new Error('Connection to upload server timed out. Please try again or proceed without uploading.');
+        //             } else {
+        //                 console.error('Fetch error:', fetchError);
+        //                 const errorMessage = fetchError instanceof Error ? fetchError.message : 'Unknown fetch error';
+        //                 throw new Error(`Connection error: ${errorMessage}. The server might be offline.`);
+        //             }
+        //         }
 
-                // If we reached here, either upload was successful or we're ignoring errors
-                // Continue with the normal flow
+        //         // If we reached here, either upload was successful or we're ignoring errors
+        //         // Continue with the normal flow
                 
 
-            } catch (error) {
-                console.error('Error uploading certificate:', error);
+        //     } catch (error) {
+        //         console.error('Error uploading certificate:', error);
 
-                const errorMessage = (error as Error).message || 'Unknown error occurred';
-                console.log('Full error details:', error);
+        //         const errorMessage = (error as Error).message || 'Unknown error occurred';
+        //         console.log('Full error details:', error);
 
-                // Ask user if they want to continue despite the upload error
-                if (confirm(`${errorMessage}\n\nDo you want to continue with registration anyway?`)) {
-                    onNext(form);
-                }
-            }
-        };
+        //         // Ask user if they want to continue despite the upload error
+        //         if (confirm(`${errorMessage}\n\nDo you want to continue with registration anyway?`)) {
+        //             onNext(form);
+        //         }
+        //     }
+        // };
        
         debugger
         onNext(form);
@@ -307,7 +308,7 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
                                     value={form.gstNumber}
                                     onChange={handleChange}
                                 />
-                                <button type="button" className="btn btn-primary ms-2" onClick={verifyGST}>Verify</button>
+                                {/* <button type="button" className="btn btn-primary ms-2" onClick={verifyGST}>Verify</button> */}
                             </div>
                             {companyDetails.display && (
                                 <div className="mt-2 small">
@@ -367,7 +368,7 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
                                         <input
                                             type="file"
                                             name="msmeCertificate"
-                                            accept='application/image/*'
+                                            accept='application/image'
                                             className="form-control"
                                             ref={msmeFileRef}
                                             onChange={handleFileChange}

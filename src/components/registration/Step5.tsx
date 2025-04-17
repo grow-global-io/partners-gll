@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import RegistrationProgress from './RegistrationProgress';
 import { useRouter } from 'next/navigation';
-import Link from 'next/link';
+// import Link from 'next/link';
 
 interface Step5Props {
     formData: Record<string, unknown>;

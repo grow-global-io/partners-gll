@@ -1,7 +1,7 @@
 "use client";
 
 import React from 'react';
-import { FaUser, FaBuilding, FaUniversity, FaLock, FaShieldAlt } from 'react-icons/fa';
+import { FaUser, FaBuilding, FaUniversity } from 'react-icons/fa';
 
 interface RegistrationProgressProps {
     currentStep: number;
