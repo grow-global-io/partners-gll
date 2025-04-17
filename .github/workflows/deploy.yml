@@ -26,12 +26,12 @@ jobs:
               run: |
                 npm run build
 
-            - name: Transfer to Hostinger using FTP
+            - name: Sync files
               uses: SamKirkland/FTP-Deploy-Action@v4.3.5
               with:
                 server: ftp.growlimitless.app
                 username: u644247801.gllpartners
-                password: ${{ secrets.FTP_PASSWORD }}
+                password: ${{secrets.FTP_PASSWORD}}
                 local-dir: ./out/
                 
                 
