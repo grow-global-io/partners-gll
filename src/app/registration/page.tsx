@@ -123,10 +123,8 @@ export default function RegistrationPage() {
     const getPointsForStep = (step: number): number => {
         const pointsMap: Record<number, number> = {
             1: 20,
-            2: 40,
-            3: 60,
-            4: 80,
-            5: 100
+            2: 50,
+            3: 100
         };
         return pointsMap[step] || 0;
     };

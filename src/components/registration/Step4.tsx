@@ -92,6 +92,7 @@ const Step4: React.FC<Step4Props> = ({ formData, onNext, onBack }) => {
                 alert('OTP has been sent to your registered email.');
 
                 // Navigate to next step
+                debugger
                 onNext(form);
             } catch (error) {
                 console.error('Error sending OTP:', error);

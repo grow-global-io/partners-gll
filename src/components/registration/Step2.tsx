@@ -3,6 +3,7 @@
 import React, { useState, useRef } from 'react';
 import RegistrationProgress from './RegistrationProgress';
 
+
 interface Step2Props {
     formData: {
         gstNumber: string;
@@ -48,7 +49,7 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
         });
     };
 
-    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleFileChange = async(e: React.ChangeEvent<HTMLInputElement>) => {
         const { name, files } = e.target;
 
         if (files && files.length > 0) {
@@ -56,10 +57,28 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
             console.log('File name:', file.name);
             console.log('File size:', file.size);
             console.log('File type:', file.type);
-            setForm({
-                ...form,
-                [name]: file
-            });
+
+            
+            const formData = new FormData();
+            formData.append("file", file);
+            formData.append("upload_preset", "unsigned_pdf_upload"); // your preset name
+
+            fetch("https://api.cloudinary.com/v1_1/dgbbx9lhj/raw/upload", {
+                method: "POST",
+                body: formData,
+            })
+                .then(res => res.json())
+                .then(data => {
+                    console.log('Uploaded URL:', data.secure_url);
+                    setForm({
+                        ...form,
+                        [name]: data.secure_url
+                    });
+                
+                })
+                .catch(err => console.log("Upload failed", err));
+            
+            
         } else {
             console.log('No file selected.');
         }
@@ -187,7 +206,7 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
                     const controller = new AbortController();
                     const timeoutId = setTimeout(() => controller.abort(), 10000); // 10 second timeout
 
-                    const response = await fetch('HOST_URL:8000/upload', {
+                    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/upload`, {
                         method: 'POST',
                         body: formData,
                         signal: controller.signal,
@@ -219,7 +238,7 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
 
                 // If we reached here, either upload was successful or we're ignoring errors
                 // Continue with the normal flow
-                onNext(form);
+                
 
             } catch (error) {
                 console.error('Error uploading certificate:', error);
@@ -233,9 +252,11 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
                 }
             }
         };
-
+       
+        debugger
+        onNext(form);
         // Start the upload process
-        uploadCertificate();
+        // uploadCertificate();
     };
 
     return (
@@ -261,7 +282,7 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
                     <h2 className="text-center mb-4 fs-3 fs-md-2">Company Details</h2>
 
                     {/* Points Counter */}
-                    <div className="points-counter mb-4 d-flex flex-column align-items-center">
+                    {/* <div className="points-counter mb-4 d-flex flex-column align-items-center">
                         <div className="d-flex justify-content-between w-100 mb-1">
                             <span>Points: <span id="points" className="fw-bold">40</span>/100</span>
                             <span className="text-muted small">Complete registration to earn all points</span>
@@ -271,7 +292,7 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
                                 <div className="progress-bar" style={{ width: '40%' }}></div>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
 
                     <form onSubmit={handleSubmit}>
                         <div className="form-group mb-3">
@@ -346,6 +367,7 @@ const Step2: React.FC<Step2Props> = ({ formData, onNext, onBack }) => {
                                         <input
                                             type="file"
                                             name="msmeCertificate"
+                                            accept='application/image/*'
                                             className="form-control"
                                             ref={msmeFileRef}
                                             onChange={handleFileChange}

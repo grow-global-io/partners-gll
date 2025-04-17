@@ -12,8 +12,8 @@ const RegistrationProgress: React.FC<RegistrationProgressProps> = ({ currentStep
         { number: 1, icon: <FaUser />, label: 'Personal Details' },
         { number: 2, icon: <FaBuilding />, label: 'Business Setup' },
         { number: 3, icon: <FaUniversity />, label: 'Banking Info' },
-        { number: 4, icon: <FaLock />, label: 'Login Details' },
-        { number: 5, icon: <FaShieldAlt />, label: 'Identity Check' },
+        // { number: 4, icon: <FaLock />, label: 'Login Details' },
+        // { number: 5, icon: <FaShieldAlt />, label: 'Identity Check' },
     ];
 
     return (

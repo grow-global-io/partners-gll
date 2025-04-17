@@ -35,7 +35,20 @@ const Step1: React.FC<Step1Props> = ({ formData, onNext }) => {
         });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleTermCheck = (e: React.ChangeEvent<HTMLInputElement>) => {
+        const { name, value, type, checked } = e.target;
+        setForm({
+            ...form,
+            [name]: type === 'checkbox' ? checked : value
+        });
+        Swal.fire({
+            title: "Terms and Conditions",
+            icon: "success",
+            confirmButtonText: "I Agree"
+        });
+    };
+
+    const handleSubmit = async(e: React.FormEvent) => {
         e.preventDefault();
 
         // Form validation
@@ -49,14 +62,14 @@ const Step1: React.FC<Step1Props> = ({ formData, onNext }) => {
             return;
         }
 
-        // Handle terms checkbox click
-        if (form.terms) {
-            Swal.fire({
-                title: "Terms and Conditions",
-                icon: "success",
-                confirmButtonText: "I Agree"
-            });
-        }
+        const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/personal-details`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(form)
+        });
+        
 
         onNext(form);
     };
@@ -91,7 +104,7 @@ const Step1: React.FC<Step1Props> = ({ formData, onNext }) => {
                     <h2 className="mb-4 text-center fs-3 fs-md-2">Get Started Now</h2>
 
                     {/* Points Counter */}
-                    <div className="points-counter mb-4 d-flex flex-column align-items-center">
+                    {/* <div className="points-counter mb-4 d-flex flex-column align-items-center">
                         <div className="d-flex justify-content-between w-100 mb-1">
                             <span>Points: <span id="points" className="fw-bold">20</span>/100</span>
                             <span className="text-muted small">Complete registration to earn all points</span>
@@ -101,7 +114,7 @@ const Step1: React.FC<Step1Props> = ({ formData, onNext }) => {
                                 <div className="progress-bar" style={{ width: '20%' }}></div>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
 
                     <p className="mb-3 text-center">Enter your details</p>
 
@@ -172,7 +185,7 @@ const Step1: React.FC<Step1Props> = ({ formData, onNext }) => {
                                 id="terms"
                                 name="terms"
                                 checked={form.terms}
-                                onChange={handleChange}
+                                onChange={handleTermCheck}
                                 required
                             />
                             <label className="form-check-label" htmlFor="terms">I agree to the terms and services</label>

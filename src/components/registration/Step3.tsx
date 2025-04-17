@@ -1,7 +1,9 @@
 "use client";
 
 import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import RegistrationProgress from './RegistrationProgress';
+import toast, { Toaster } from 'react-hot-toast';
 
 interface Step3Props {
     formData: {
@@ -29,6 +31,7 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
         verified: false
     });
     const [isVerifying, setIsVerifying] = useState(false);
+    const router = useRouter();
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -121,7 +124,7 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async(e: React.FormEvent) => {
         e.preventDefault();
 
         if (validateForm()) {
@@ -134,8 +137,28 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
                 bankName: ifscStatus.bank || '',
                 bankBranch: ifscStatus.branch || ''
             };
-
-            onNext(formattedData);
+            
+            const payload = {
+                ...formData,
+                ifscCode: form.ifscCode,
+                accountName: form.accountHolderName,
+                accountNumber: form.accountNumber,
+                wantPaymentGateway: form.paymentGateway === 'yes',
+                bankName: ifscStatus.bank || '',
+                bankBranch: ifscStatus.branch || ''
+            };
+            console.log('Sending data as JSON:', JSON.stringify(payload));
+            debugger
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
+            });
+            toast.success("Partner Registration Successfully");
+            router.push('/');
+            // onNext(formattedData);
         }
     };
 
@@ -170,6 +193,8 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
     return (
         <>
             {/* Hero Section */}
+
+            <Toaster position='top-center' />
             <div className="hero d-none d-md-block">
                 <div className="hero-content px-4 py-5">
                     <h1 className="fs-2 fs-md-1 mb-4">Complete Your Registration</h1>
@@ -189,7 +214,7 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
                     <h2 className="text-center mb-4 fs-3 fs-md-2">Bank Details</h2>
 
                     {/* Points Counter - Moved from bottom to here */}
-                    <div className="points-counter mb-4 d-flex flex-column align-items-center">
+                    {/* <div className="points-counter mb-4 d-flex flex-column align-items-center">
                         <div className="d-flex justify-content-between w-100 mb-1">
                             <span>Points: <span id="points" className="fw-bold">60</span>/100</span>
                             <span className="text-muted small">Complete registration to earn all points</span>
@@ -199,7 +224,7 @@ const Step3: React.FC<Step3Props> = ({ formData, onNext, onBack }) => {
                                 <div className="progress-bar" style={{ width: '60%' }}></div>
                             </div>
                         </div>
-                    </div>
+                    </div> */}
 
                     <form id="bankDetailsForm" onSubmit={handleSubmit}>
                         <div className="form-group mb-4">

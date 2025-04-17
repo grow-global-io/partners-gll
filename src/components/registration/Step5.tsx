@@ -78,22 +78,21 @@ const Step5: React.FC<Step5Props> = ({ formData, onBack }) => {
         setIsSubmitting(true);
 
         try {
-            // Create FormData instance
-            const formDataToSend = new FormData();
+            // Create JSON payload
+            const payload = {
+                ...formData, // Include all previous step data
+                otpCode: emailOtp
+            };
 
-            // Add all necessary data to the FormData
-            formDataToSend.append('email', 'test@example.com');
-            formDataToSend.append('name', 'Test User');
-            formDataToSend.append('password', 'Password123');
-            formDataToSend.append('otpCode', emailOtp);
-
-            console.log('Sending data as FormData');
-
-            // Send request with FormData
-            const response = await fetch('HOST_URL:8000/register', {
+            console.log('Sending data as JSON:', JSON.stringify(payload));
+            debugger
+            // Send request with JSON
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/register`, {
                 method: 'POST',
-                // No Content-Type header as browser will set it with boundary for FormData
-                body: formDataToSend
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(payload)
             });
 
             console.log('Response status:', response.status);
@@ -163,7 +162,7 @@ const Step5: React.FC<Step5Props> = ({ formData, onBack }) => {
                     <h2 className="text-center mb-3 fs-3 fs-md-2">Enter Verification Codes</h2>
 
                     {/* Points Counter */}
-                    <div className="points-counter mb-4 d-flex flex-column align-items-center">
+                    {/* <div className="points-counter mb-4 d-flex flex-column align-items-center">
                         <div className="d-flex justify-content-between w-100 mb-1">
                             <span>Points: <span id="points" className="fw-bold">100</span>/100</span>
                             <span className="text-muted small">Complete registration to claim rewards</span>
@@ -176,7 +175,7 @@ const Step5: React.FC<Step5Props> = ({ formData, onBack }) => {
                         <Link href="/" className="mt-2 w-100">
                             <button type="button" className="btn btn-success w-100">Claim GLL ion</button>
                         </Link>
-                    </div>
+                    </div> */}
 
                     <div className="progress-container mb-4">
                         <div className="progress">
@@ -224,10 +223,10 @@ const Step5: React.FC<Step5Props> = ({ formData, onBack }) => {
                             >
                                 {isSubmitting ? (
                                     <>
-                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Verifying...
+                                        <span className="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Please Wait...
                                     </>
                                 ) : (
-                                    'Verify Account'
+                                    'Submit'
                                 )}
                             </button>
                         </div>
