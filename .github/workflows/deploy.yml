@@ -24,7 +24,7 @@ jobs:
 
             - name: running build commands
               run: |
-                npx next build && next export
+                npm run build
                 
                 
                 
